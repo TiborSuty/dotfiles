@@ -1,0 +1,39 @@
+rm -r .config
+ls-a
+ls -a
+cd .config/
+ls
+ls -a
+cd
+cd dotfiles/
+stew .
+stow .
+stow . -a
+stow -a .
+stow --adopt .
+clear
+cd
+ls -lah .zshrc
+cd dotfiles/
+clear
+git init .
+lazigit
+lazygit
+gh repo create
+ls
+ls -l
+ls -a
+cd .config/
+ls
+rm -r raycast
+ls
+rm -r simple-update-notifier/
+rm -r sketchybar_old/
+rm -r github-copilot/
+cd ..
+lazygit
+cd .config/
+rm - r jgit/
+rm - r jgit
+rm -r jgit
+cd ..
