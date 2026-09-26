@@ -11,10 +11,25 @@
   let
     configuration = { pkgs, ... }: {
       environment.systemPackages = [
+        pkgs.cocoapods
         pkgs.fd
+        pkgs.fzf
+        pkgs.gh
+        pkgs.kubectl
+        pkgs.lazygit
+        pkgs.libimobiledevice
         pkgs.neovim
+        pkgs.php85
+        pkgs.poppler-utils
         pkgs.ripgrep
+        pkgs.sesh
+        pkgs.starship
+        pkgs.stow
+        pkgs.talosctl
         pkgs.tmux
+        pkgs.wasm-pack
+        pkgs.yazi-unwrapped
+        pkgs.zoxide
       ];
 
       nix.package = pkgs.lix;
