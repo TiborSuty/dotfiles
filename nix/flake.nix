@@ -11,7 +11,9 @@
   let
     configuration = { pkgs, ... }: {
       environment.systemPackages = [
+        pkgs.fd
         pkgs.neovim
+        pkgs.ripgrep
         pkgs.tmux
       ];
 
