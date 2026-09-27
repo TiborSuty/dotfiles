@@ -19,6 +19,7 @@
         unstable.binaryen
         unstable.bitwarden-cli
         unstable.cilium-cli
+        unstable.codecrafters-cli
         pkgs.cocoapods
         pkgs.fd
         pkgs.fzf
@@ -53,6 +54,50 @@
 
       nix.package = pkgs.lix;
       nix.settings.experimental-features = "nix-command flakes";
+      system.primaryUser = "tiborsuty";
+
+      homebrew = {
+        enable = true;
+        onActivation = {
+          autoUpdate = false;
+          upgrade = false;
+          cleanup = "none";
+          extraEnv.HOMEBREW_NO_INSTALL_UPGRADE = "1";
+        };
+        taps = [
+          { name = "anomalyco/tap"; trusted = true; }
+          { name = "hashicorp/tap"; trusted = true; }
+          { name = "netbirdio/tap"; trusted = true; }
+        ];
+        brews = [
+          "awscli"
+          { name = "awscli@1"; link = false; }
+          "coder"
+          "glab"
+          "node"
+          { name = "node@24"; link = false; }
+          { name = "nvm"; link = false; }
+          { name = "hashicorp/tap/terraform"; trusted = true; }
+          { name = "hashicorp/tap/vault"; trusted = true; }
+          "vault-cli"
+          { name = "netbirdio/tap/netbird"; trusted = true; }
+          "xcodegen"
+          { name = "zsh"; link = false; }
+        ];
+        casks = [
+          "claude"
+          "claude-code"
+          "codex"
+          "ghostty"
+          "orbstack"
+        ];
+        masApps = {
+          "Unzip - RAR ZIP 7Z Unarchiver" = 1537056818;
+          WhatsApp = 310633997;
+          Xcode = 497799835;
+        };
+      };
+
       system.configurationRevision = self.rev or self.dirtyRev or null;
       system.stateVersion = 6;
       nixpkgs.hostPlatform = "aarch64-darwin";
