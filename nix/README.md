@@ -5,7 +5,9 @@ Home Manager 26.05. The
 original machine inventory is in
 [Homebrew inventory](homebrew-inventory-2026-09-26.md) and
 [application inventory](application-inventory-2026-09-26.md). Those files are
-dated snapshots; `flake.nix` is the package declaration.
+dated snapshots; `flake.nix` is the package declaration. The
+[current application inventory](application-inventory-2026-10-24.md) records
+GUI app ownership and the cask adoption checks.
 
 ## Apply and verify
 
@@ -27,10 +29,10 @@ previous generation.
 | Owner | Packages |
 | --- | --- |
 | Native Nix | The CLI tools in `environment.systemPackages`, including Neovim, tmux, Kubernetes and Talos tools, Rustup, uv, OpenTofu, CodeCrafters, and the shell utilities. Lix is the Nix implementation. |
-| nix-darwin Homebrew Bundle | AWS CLI v1/v2, Coder, GitLab CLI, Node 26 and Node 24, NVM, Terraform, Vault, Apache Jackrabbit FileVault CLI, NetBird, XcodeGen, and the old unlinked Homebrew Zsh; Claude, Claude Code, Codex, Ghostty, and OrbStack casks. |
+| nix-darwin Homebrew Bundle | AWS CLI v1/v2, Coder, GitLab CLI, Node 26 and Node 24, NVM, Terraform, Vault, Apache Jackrabbit FileVault CLI, NetBird, XcodeGen, and the old unlinked Homebrew Zsh; the 21 casks declared in `flake.nix`, including 19 GUI apps plus Claude Code and Codex CLI. |
 | nix-darwin Mac App Store declaration | Xcode, WhatsApp, and Unzip - RAR ZIP 7Z Unarchiver. |
 | Home Manager | Zsh initialization and pinned shell plugins, Git settings, Starship, Ghostty, the Vaultwarden CA certificate, and links to the writable Neovim, tmux, and Git ignore configuration. |
-| Existing vendor or app updater | Adobe Creative Cloud and Lightroom, Arc, Beeper, ChatGPT Classic, Docker Desktop, Firefox, Folx, Chrome, JetBrains Toolbox and its IDEs, NetBird GUI, Obsidian, OpenCode Desktop, Raycast, Slack, Spark, Spotify, TickTick, VLC, and Wispr Flow. |
+| Existing vendor installation | Adobe Creative Cloud and Lightroom, Arc, ChatGPT Classic, Docker Desktop, NetBird GUI, and the JetBrains Toolbox-managed DataGrip and WebStorm installations. |
 | User runtime | NVM's Node 24, npm, Corepack, project selected pnpm versions, Neovim and tmux plugin managers, and the global npm `nx` installation. |
 
 The 33 Homebrew formulae already replaced by Nix and their 63 unused
@@ -42,6 +44,16 @@ and verification are recorded in the
 `homebrew.onActivation.cleanup = "none"` keeps system switches from performing
 automatic cleanup. Homebrew's transitive libraries are deliberately not listed
 in the flake.
+
+The additional GUI casks adopt the existing app bundles. Their vendor updaters
+remain available, and activation still disables upgrades and cleanup. App
+versions can therefore differ from Homebrew's cask receipts; this declares
+installation ownership, not exact GUI versions. Firefox, Obsidian, and VLC use
+`args.no_binaries = true` to avoid adding CLI wrappers or helper links. See the
+[application inventory](application-inventory-2026-10-24.md) for each app and
+the explicit exceptions. Six added casks are registered; ten need local
+administrator authentication before adoption can finish. The build passes,
+but generation 7 remains active until the next successful switch.
 
 ## Managed dotfiles
 
@@ -89,11 +101,13 @@ been verified in your normal terminal and applications.
   10.29.2; `open-design` declares 10.33.2. Replacing NVM/Corepack globally
   would override that selection. The Nix pnpm 10 package is available but
   does not win over the active NVM Corepack shim in interactive shells.
-- Existing GUI apps have vendor updater state, login items, permissions, and
-  sometimes privileged helpers. Homebrew's cask `--adopt` only accepts
-  identical existing app artifacts. Declaring the rest as casks now could
-  trigger downloads and replacement of running apps. Available disk space is
-  too low to duplicate the larger apps for native Nix launch testing.
+- Homebrew 7.0.10 permits adoption of existing self-updating app bundles even
+  when versions differ. The selected casks use that path and preserve the app
+  contents. Adobe's installer, NetBird's privileged VPN integration, Docker's
+  CLI/helper setup, the differently named ChatGPT Classic bundle, and Arc's
+  deprecated cask remain exceptions. JetBrains Toolbox continues to manage
+  DataGrip and WebStorm. Native Nix replacements would still need launch,
+  permissions, helper, and workflow tests before replacing these apps.
 
 Check the active command with `type -a <command>` in a fresh interactive login
 shell. `brew list --formula --versions`, `brew list --cask --versions`, and

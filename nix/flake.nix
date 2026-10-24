@@ -88,11 +88,29 @@
           { name = "zsh"; link = false; }
         ];
         casks = [
+          # Existing self-updating bundles are adopted; switches do not upgrade them.
+          "beeper"
           "claude"
           "claude-code"
           "codex"
+          # Keep GUI-only apps from adding CLI wrappers or missing helper binaries.
+          { name = "firefox"; args.no_binaries = true; }
+          "folx"
           "ghostty"
+          "google-chrome"
+          "jetbrains-toolbox"
+          "microsoft-edge"
+          { name = "obsidian"; args.no_binaries = true; }
+          "opencode-desktop"
           "orbstack"
+          "raycast"
+          "readdle-spark"
+          "rescuetime"
+          "slack"
+          "spotify"
+          "ticktick"
+          { name = "vlc"; args.no_binaries = true; }
+          "wispr-flow"
         ];
         masApps = {
           "Unzip - RAR ZIP 7Z Unarchiver" = 1537056818;
