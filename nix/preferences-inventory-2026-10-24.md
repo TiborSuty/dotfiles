@@ -1,8 +1,9 @@
 # macOS preferences migration
 
-Prepared **2026-10-24** on macOS **15.7.3**, using the pinned nix-darwin
+Completed **2026-10-24** on macOS **15.7.3**, using the pinned nix-darwin
 **26.05** modules. The declaration is [preferences.nix](preferences.nix).
-The build and checks pass. **Activation is pending; generation 9 remains active.**
+**Generation 10 is active.** The active system and selected profile match,
+and the post-switch preference checks passed.
 
 ## Captured settings
 
@@ -34,9 +35,12 @@ arrangement and device metadata remain managed by macOS.
 - The full nix-darwin build passed.
 - Every generated preference write matches an existing snapshot key, value,
   and user/device/host scope. No previously absent key is introduced.
-- The built activation script contains the reviewed commands.
-- All 51 values match live preferences before activation. An additional
+- The active generation's activation script contains the reviewed commands.
+- All 51 values match live preferences after activation. An additional
   24 unmanaged settings retain their original values or absence.
+- The active system and selected profile both resolve to generation 10.
+  Homebrew Bundle reports all 40 declared dependencies installed, and Home
+  Manager activation completed successfully.
 - The generated defaults script and local activation helper pass shell syntax
   checks. Interactive behavior after activation has not yet been checked.
 
@@ -53,19 +57,20 @@ manifest, and verification results. The snapshots retain the original value
 types for recovery. Removing a declaration or rolling back does not itself
 delete previously written macOS preference keys.
 
-## Activate and verify
+## Activation and verification
 
-Run this in the terminal with the App Management permission used for the
-successful GUI migration:
+The local `activate-and-verify.sh` helper completed the normal
+`sudo darwin-rebuild switch` and verified the result. It checked the 51 managed
+values, 24 unmanaged settings, expected activation commands, and agreement
+between the active and selected system. No further switch is needed for this
+migration. The successful log is:
 
-```sh
-bash ~/.local/state/nix-darwin/preferences-migration-20261024/activate-and-verify.sh
+```text
+~/.local/state/nix-darwin/preferences-migration-20261024/switch-20261024-120236.log
 ```
 
-The helper runs the normal `sudo darwin-rebuild switch`, saves its output to a
-dated log, and checks the 51 managed values, 24 unmanaged settings, expected
-activation commands, and agreement between the active and selected system.
-An administrator password is required. Dock briefly restarts during activation.
+`verification.json` in the same directory records the successful active-system
+check. Dock restarts when nix-darwin applies the declared Dock preferences.
 
 For a later read-only check of this snapshot:
 

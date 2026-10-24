@@ -32,7 +32,7 @@ previous generation.
 | nix-darwin Homebrew Bundle | AWS CLI v1/v2, Coder, GitLab CLI, Node 26 and Node 24, NVM, Terraform, Vault, Apache Jackrabbit FileVault CLI, NetBird, XcodeGen, and the old unlinked Homebrew Zsh; the 21 casks declared in `flake.nix`, including 19 GUI apps plus Claude Code and Codex CLI. |
 | nix-darwin Mac App Store declaration | Xcode, WhatsApp, and Unzip - RAR ZIP 7Z Unarchiver. |
 | Home Manager | Zsh initialization and pinned shell plugins, Git settings, Starship, Ghostty, the Vaultwarden CA certificate, and links to the writable Neovim, tmux, and Git ignore configuration. |
-| nix-darwin macOS preferences | Existing Dock, Finder, typing, and trackpad settings in `preferences.nix`; built and checked, awaiting activation. |
+| nix-darwin macOS preferences | Existing Dock, Finder, typing, and trackpad settings in `preferences.nix`; active and verified in generation 10. |
 | Existing vendor installation | Adobe Creative Cloud and Lightroom, Arc, ChatGPT Classic, Docker Desktop, NetBird GUI, and the JetBrains Toolbox-managed DataGrip and WebStorm installations. |
 | User runtime | NVM's Node 24, npm, Corepack, project selected pnpm versions, Neovim and tmux plugin managers, and the global npm `nx` installation. |
 
@@ -53,9 +53,9 @@ installation ownership, not exact GUI versions. Firefox, Obsidian, and VLC use
 `args.no_binaries = true` to avoid adding CLI wrappers or helper links. See the
 [application inventory](application-inventory-2026-10-24.md) for each app and
 the explicit exceptions. All 16 added casks are now registered, for 21 casks
-in total. Generation 9 is active and matches the selected system profile;
-Homebrew Bundle and `brew missing` checks pass. All 16 adopted app bundles
-retain their original identities, versions, and file contents. The inventory
+in total. GUI adoption completed in generation 9; Homebrew Bundle also passed
+during generation 10 activation. Adoption checks confirmed that all 16 app
+bundles retained their original identities, versions, and file contents. The inventory
 records the [activation and permission recovery](application-inventory-2026-10-24.md#activation-and-recovery).
 
 ## macOS preferences
@@ -71,10 +71,11 @@ preferences are written with `defaults -currentHost` because the existing
 values are host-specific. Future changes to declared preferences belong in
 `preferences.nix`; a switch reapplies them and briefly restarts Dock.
 
-The build passed and all 51 generated preference writes match the original
-settings. Activation is pending; generation 9 is still active. The
+Generation 10 is active and matches the selected system profile. All 51 managed
+preference entries match the saved settings after activation, and all 24 checked
+unmanaged settings retain their original values or absence. The
 [preference inventory](preferences-inventory-2026-10-24.md) records the saved
-snapshot and the command to activate and verify this change.
+snapshot, successful activation log, and read-only verification command.
 
 ## Managed dotfiles
 
