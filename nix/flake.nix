@@ -128,6 +128,7 @@
     darwinConfigurations."m1pro" = nix-darwin.lib.darwinSystem {
       modules = [
         configuration
+        ./preferences.nix
         home-manager.darwinModules.home-manager
         {
           home-manager.useGlobalPkgs = true;

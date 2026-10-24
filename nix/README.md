@@ -32,6 +32,7 @@ previous generation.
 | nix-darwin Homebrew Bundle | AWS CLI v1/v2, Coder, GitLab CLI, Node 26 and Node 24, NVM, Terraform, Vault, Apache Jackrabbit FileVault CLI, NetBird, XcodeGen, and the old unlinked Homebrew Zsh; the 21 casks declared in `flake.nix`, including 19 GUI apps plus Claude Code and Codex CLI. |
 | nix-darwin Mac App Store declaration | Xcode, WhatsApp, and Unzip - RAR ZIP 7Z Unarchiver. |
 | Home Manager | Zsh initialization and pinned shell plugins, Git settings, Starship, Ghostty, the Vaultwarden CA certificate, and links to the writable Neovim, tmux, and Git ignore configuration. |
+| nix-darwin macOS preferences | Existing Dock, Finder, typing, and trackpad settings in `preferences.nix`; built and checked, awaiting activation. |
 | Existing vendor installation | Adobe Creative Cloud and Lightroom, Arc, ChatGPT Classic, Docker Desktop, NetBird GUI, and the JetBrains Toolbox-managed DataGrip and WebStorm installations. |
 | User runtime | NVM's Node 24, npm, Corepack, project selected pnpm versions, Neovim and tmux plugin managers, and the global npm `nx` installation. |
 
@@ -56,6 +57,24 @@ in total. Generation 9 is active and matches the selected system profile;
 Homebrew Bundle and `brew missing` checks pass. All 16 adopted app bundles
 retain their original identities, versions, and file contents. The inventory
 records the [activation and permission recovery](application-inventory-2026-10-24.md#activation-and-recovery).
+
+## macOS preferences
+
+`preferences.nix` captures the existing Dock, Finder, typing, and trackpad
+settings. It preserves the left, auto-hiding Dock; minimization into app icons;
+the Quick Note hot corner; Finder list view and desktop disk visibility;
+automatic capitalization and periods; and the existing trackpad behavior.
+Keyboard repeat and other unset preferences remain controlled by macOS.
+
+Built-in and Bluetooth trackpads retain their separate scopes. Two click
+preferences are written with `defaults -currentHost` because the existing
+values are host-specific. Future changes to declared preferences belong in
+`preferences.nix`; a switch reapplies them and briefly restarts Dock.
+
+The build passed and all 51 generated preference writes match the original
+settings. Activation is pending; generation 9 is still active. The
+[preference inventory](preferences-inventory-2026-10-24.md) records the saved
+snapshot and the command to activate and verify this change.
 
 ## Managed dotfiles
 
