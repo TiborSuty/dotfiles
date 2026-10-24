@@ -51,14 +51,11 @@ versions can therefore differ from Homebrew's cask receipts; this declares
 installation ownership, not exact GUI versions. Firefox, Obsidian, and VLC use
 `args.no_binaries = true` to avoid adding CLI wrappers or helper links. See the
 [application inventory](application-inventory-2026-10-24.md) for each app and
-the explicit exceptions. Six added casks are registered; ten remain blocked
-at Homebrew's app-permissions step. The attempted switch
-selected generation 8, but generation 7 remains active because activation
-failed. Reapplying an existing app's group returned `Operation not permitted`
-despite correct ownership and no immutable file flags. This points to macOS
-App Management access for the terminal running Homebrew; an administrator
-password alone may not resolve it. See the inventory's
-[activation recovery steps](application-inventory-2026-10-24.md#finish-activation).
+the explicit exceptions. All 16 added casks are now registered, for 21 casks
+in total. Generation 9 is active and matches the selected system profile;
+Homebrew Bundle and `brew missing` checks pass. All 16 adopted app bundles
+retain their original identities, versions, and file contents. The inventory
+records the [activation and permission recovery](application-inventory-2026-10-24.md#activation-and-recovery).
 
 ## Managed dotfiles
 

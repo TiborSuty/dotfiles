@@ -10,12 +10,11 @@ The declarations cover **30 primary third-party GUI apps**: 19 GUI casks,
 3 Mac App Store apps, and 8 explicit vendor-managed exceptions. The flake
 also declares Claude Code and Codex CLI, for **21 casks** in total.
 
-**Activation failed.** Six of the 16 added casks were adopted successfully.
-Ten remain blocked at Homebrew's app-permissions step. There are currently
-11 registered casks, including the five existing ones. The attempted switch
-selected generation 8 in `/nix/var/nix/profiles/system`, but
-`/run/current-system` still points to generation 7. A selected profile alone
-does not prove successful activation.
+**Completed on 2026-10-24: generation 9 is active.** All 16 added casks
+are registered, for 21 installed casks in total. `/run/current-system` and
+`/nix/var/nix/profiles/system` resolve to the same system. Homebrew Bundle
+reports all 40 entries satisfied: 3 taps, 13 formula declarations, 21 casks,
+and 3 Mac App Store apps. No app registrations remain pending.
 Safari is supplied by macOS; the Claude Code URL Handler is a helper rather
 than an independent application.
 
@@ -32,24 +31,24 @@ than an independent application.
 | Firefox | 155.0.1 | `firefox` cask | Existing bundle adopted. CLI artifacts disabled. |
 | Folx | 5.34 | `folx` cask | Existing bundle adopted. |
 | Ghostty | 1.3.0 | `ghostty` cask | Previously declared; retained. |
-| Google Chrome | 155.0.8059.86 | `google-chrome` cask declaration | Adoption blocked by the app-permissions step. |
-| JetBrains Toolbox | 3.9.0.88839 | `jetbrains-toolbox` cask declaration | Adoption blocked by the app-permissions step. |
+| Google Chrome | 155.0.8059.86 | `google-chrome` cask | Existing bundle adopted. |
+| JetBrains Toolbox | 3.9.0.88839 | `jetbrains-toolbox` cask | Existing bundle adopted. |
 | Microsoft Edge | 156.0.4314.42 | `microsoft-edge` cask | Existing bundle adopted. |
 | NetBird | 0.81.3 | Vendor / existing installer | Keep the vendor GUI and privileged VPN integration; the CLI remains a declared Homebrew fallback. |
-| Obsidian | 1.11.7 | `obsidian` cask declaration | Adoption blocked by the app-permissions step. CLI artifacts disabled. |
+| Obsidian | 1.11.7 | `obsidian` cask | Existing bundle adopted. CLI artifacts disabled. |
 | OpenCode | 1.2.22 | `opencode-desktop` cask | Existing bundle adopted. |
 | OrbStack | 2.2.3 | `orbstack` cask | Previously declared; retained. |
-| Raycast | 1.104.31 | `raycast` cask declaration | Adoption blocked by the app-permissions step. |
-| RescueTime | 3.2.12.3 | `rescuetime` cask declaration | Adoption blocked by the app-permissions step. |
-| Slack | 4.52.182 | `slack` cask declaration | Adoption blocked by the app-permissions step. |
-| Spark Desktop | 3.27.9 | `readdle-spark` cask declaration | Adoption blocked by the app-permissions step. |
+| Raycast | 1.104.31 | `raycast` cask | Existing bundle adopted. |
+| RescueTime | 3.2.12.3 | `rescuetime` cask | Existing bundle adopted. |
+| Slack | 4.52.182 | `slack` cask | Existing bundle adopted. |
+| Spark Desktop | 3.27.9 | `readdle-spark` cask | Existing bundle adopted. |
 | Spotify | 1.3.6.1921 | `spotify` cask | Existing bundle adopted. |
-| TickTick | 8.0.10 | `ticktick` cask declaration | Adoption blocked by the app-permissions step. |
+| TickTick | 8.0.10 | `ticktick` cask | Existing bundle adopted. |
 | Unzip - RAR ZIP 7Z Unarchiver | 2.5.1 | Mac App Store | Existing receipt matches the declared app ID. |
-| VLC | 3.0.23 | `vlc` cask declaration | Adoption blocked by the app-permissions step. CLI artifacts disabled. |
+| VLC | 3.0.23 | `vlc` cask | Existing bundle adopted. CLI artifacts disabled. |
 | WebStorm | 2025.3.3 | Vendor / existing installer | Managed by JetBrains Toolbox; do not add a second IDE owner. |
 | WhatsApp | 26.28.75 | Mac App Store | Existing receipt matches the declared app ID. |
-| Wispr Flow | 1.4.351 | `wispr-flow` cask declaration | Adoption blocked by the app-permissions step. |
+| Wispr Flow | 1.4.351 | `wispr-flow` cask | Existing bundle adopted. |
 | Xcode | 26.3 | Mac App Store | Existing receipt matches the declared app ID. |
 
 ## Adoption behavior
@@ -85,55 +84,44 @@ part of this migration.
   entries** match the pre-adoption snapshot. The file contents total about
   6.80 GiB. Failed registration attempts left the original app contents in place.
 - The five pre-existing cask receipts are unchanged; `brew missing` passes.
-- `brew bundle check --no-upgrade --verbose` reports exactly the ten casks
-  marked pending above; every other Brewfile entry is satisfied.
+- `brew bundle check --no-upgrade --verbose` passes with no missing entries.
+  All 21 declared casks have installed receipts; all 16 added apps are adopted.
+- Generation 9 is active, and its Brewfile matches the verified declarations.
 - The three App Store receipts match the declared IDs. Docker still selects
   the `orbstack` context.
-- Apps were not relaunched. This verifies registration and preserved bundle
-  contents, not interactive app workflows or the pending system activation.
+- Apps were not relaunched. This verifies registration, preserved bundle
+  contents, and successful system activation. Interactive app workflows were
+  not tested.
 
 Raw inventory, cask metadata, per-app installation logs, file/link fingerprints,
 and verification results are saved locally under
 `~/.local/state/nix-darwin/gui-migration-20261024/`.
 
-## Finish activation
+## Activation and recovery
 
-A follow-up check after the attempted switch confirmed that all 16 bundle
-identities and all 9,618 file/link entries still match the original snapshot.
-The same ten casks remain unregistered. Reapplying Obsidian's existing `admin`
-group directly returned `Operation not permitted`; the files belong to the
-current administrator account and have no immutable flags. This points to
-macOS App Management access. The original terminal error block has not yet
-been captured, so the terminal's exact failure still needs confirmation.
-
-Enable the terminal used for the switch (for example, Ghostty or Terminal) in
-**System Settings → Privacy & Security → App Management**. This is the macOS
-permission for modifying other app bundles, separate from administrator
-authentication. See [Apple's privacy settings guide](https://support.apple.com/guide/mac-help/change-privacy-security-settings-on-mac-mchl211c911f/15.0/mac/15.0)
+The first switch selected generation 8 but stopped before activation; generation
+7 remained active. Ten cask registrations failed during Homebrew's app-permissions
+step. A direct diagnostic returned `Operation not permitted` when reapplying
+Obsidian's existing group, despite correct ownership and no immutable flags.
+The terminal's macOS App Management permission was identified as the likely
+cause, and the recovery instructions covered granting that permission before
+retrying. See [Apple's privacy settings guide](https://support.apple.com/guide/mac-help/change-privacy-security-settings-on-mac-mchl211c911f/15.0/mac/15.0)
 and [Homebrew's app-management explanation](https://docs.brew.sh/FAQ#why-do-my-cask-apps-lose-their-dock-position--launchpad-position--permission-settings-when-i-run-brew-upgrade).
 
-Then run the switch from that terminal with administrator authentication:
+The logged retry succeeded and activated generation 9. The post-switch verifier
+confirmed all 21 cask receipts, no missing Brewfile entries, and unchanged
+contents for the 16 adopted app bundles. The active and selected system paths
+also match. The successful log is
+`~/.local/state/nix-darwin/gui-migration-20261024/switch-20261024-113644.log`;
+`verification.json` in that directory records the checks.
 
-```sh
-sudo /run/current-system/sw/bin/darwin-rebuild switch --flake /Users/tiborsuty/dotfiles/nix#m1pro
-```
-
-Homebrew Bundle uses adoption for the remaining installed app bundles. Then
-rerun the bundle-content and dependency verification:
+No further switch is needed for this adoption. For a later verification of this
+snapshot, the local audit helper is:
 
 ```sh
 python3 ~/.local/state/nix-darwin/gui-migration-20261024/verify-adoption.py
 ```
 
-The final check must report no pending casks and a successful Brewfile check.
-Confirm the new active generation before treating activation as complete.
-
-A local retry helper captures the switch output and runs these checks after
-a successful activation, preserving failure exit codes:
-
-```sh
-bash ~/.local/state/nix-darwin/gui-migration-20261024/retry-switch.sh
-```
-
-It saves a dated `switch-*.log` in the same audit directory. If the switch
-still fails, inspect the first error in that log before retrying again.
+Its bundle hashes are tied to this snapshot; a later vendor app update can
+legitimately change them. The local `retry-switch.sh` helper is retained for
+troubleshooting future activation failures and records a dated switch log.
