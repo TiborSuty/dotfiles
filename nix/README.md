@@ -1,6 +1,7 @@
-# Mac package management
+# Mac configuration
 
-This flake manages the Apple Silicon Mac with Lix and nix-darwin 26.05. The
+This flake manages the Apple Silicon Mac with Lix, nix-darwin 26.05, and
+Home Manager 26.05. The
 original machine inventory is in
 [Homebrew inventory](homebrew-inventory-2026-09-26.md) and
 [application inventory](application-inventory-2026-09-26.md). Those files are
@@ -28,13 +29,44 @@ previous generation.
 | Native Nix | The CLI tools in `environment.systemPackages`, including Neovim, tmux, Kubernetes and Talos tools, Rustup, uv, OpenTofu, CodeCrafters, and the shell utilities. Lix is the Nix implementation. |
 | nix-darwin Homebrew Bundle | AWS CLI v1/v2, Coder, GitLab CLI, Node 26 and Node 24, NVM, Terraform, Vault, Apache Jackrabbit FileVault CLI, NetBird, XcodeGen, and the old unlinked Homebrew Zsh; Claude, Claude Code, Codex, Ghostty, and OrbStack casks. |
 | nix-darwin Mac App Store declaration | Xcode, WhatsApp, and Unzip - RAR ZIP 7Z Unarchiver. |
+| Home Manager | Zsh initialization and pinned shell plugins, Git settings, Starship, Ghostty, the Vaultwarden CA certificate, and links to the writable Neovim, tmux, and Git ignore configuration. |
 | Existing vendor or app updater | Adobe Creative Cloud and Lightroom, Arc, Beeper, ChatGPT Classic, Docker Desktop, Firefox, Folx, Chrome, JetBrains Toolbox and its IDEs, NetBird GUI, Obsidian, OpenCode Desktop, Raycast, Slack, Spark, Spotify, TickTick, VLC, and Wispr Flow. |
-| User runtime | NVM's Node 24, npm, Corepack, project selected pnpm versions, Zinit shell plugins, and the global npm `nx` installation. |
+| User runtime | NVM's Node 24, npm, Corepack, project selected pnpm versions, Neovim and tmux plugin managers, and the global npm `nx` installation. |
 
 Homebrew formulae already replaced by native Nix are unlinked but still
 installed as rollback copies. `homebrew.onActivation.cleanup = "none"` means a
 switch will not delete them. Homebrew's transitive libraries are deliberately
 not listed in the flake.
+
+## Managed dotfiles
+
+`home.nix` declares the user configuration. Edit the source in `~/dotfiles`,
+then build and switch with the commands above. Home Manager generates the live
+Zsh files; the repository `.zshrc` is the custom initialization fragment, not a
+standalone replacement for the generated file.
+
+| Configuration | Source and behavior |
+| --- | --- |
+| Zsh | `.zshrc`, `.zprofile`, and `nix/home.nix`. NVM initialization, aliases, key bindings, and the Vaultwarden wrapper are preserved. |
+| Shell plugins | Completions, autosuggestions, syntax highlighting, fzf-tab, and the selected Oh My Zsh snippets come from the pinned Nix packages. Zinit and the old Powerlevel10k bootstrap are no longer loaded. |
+| Git identity | `.gitconfig`, copied from the existing local configuration. |
+| Starship, Ghostty, Vaultwarden CA | The corresponding `.config` directories are linked to snapshots in the Nix store. Edit the repository copies and rebuild. |
+| Neovim, tmux, Git ignore | Home Manager owns links to the existing repository directories. These stay writable for LazyVim lockfiles, TPM plugins, and tools that update Git ignore rules. Edits take effect directly; their exact contents are tracked by Git rather than frozen in each Nix generation. |
+
+The NVM/Corepack setup still chooses project runtimes. Shell startup does not
+download plugins or replace the project-selected Node/pnpm versions. The old
+Zinit checkout is retained as a rollback copy.
+
+The first migration saves the original files and link manifest under
+`~/.local/state/nix-darwin/home-manager-migration-20261024-104516/`.
+Home Manager also preserves replaced regular files with a
+`.before-home-manager` suffix. No existing backup is overwritten.
+
+Future nix-darwin switches and rollbacks include Home Manager. Rolling back to
+a system generation from before Home Manager was introduced does not restore
+the old home files automatically; use the saved originals and link manifest
+for that first-migration rollback. Keep the backups until the new setup has
+been verified in your normal terminal and applications.
 
 ## Remaining migration boundaries
 
@@ -57,11 +89,40 @@ not listed in the flake.
   identical existing app artifacts. Declaring the rest as casks now could
   trigger downloads and replacement of running apps. Available disk space is
   too low to duplicate the larger apps for native Nix launch testing.
-- `.zshrc` contains credential assignments. Move those credentials to
-  protected runtime storage before managing the shell file through Nix;
-  values placed in a Nix expression can become readable in the Nix store.
 
 Check the active command with `type -a <command>` in a fresh interactive login
 shell. `brew list --formula --versions`, `brew list --cask --versions`, and
 `mas list` (available through `nix shell nixpkgs#mas --command mas list`) refresh
 the external package inventory.
+
+## Development secrets
+
+The shell stores Vaultwarden item references only. Run commands that need the
+Carvago GitHub, Carvago GitLab, and Phrase tokens through:
+
+```sh
+with_dev_secrets <command> [args...]
+```
+
+The wrapper unlocks and synchronizes Vaultwarden, then reads the password fields
+of `dev/carvago/github-access-token`, `dev/carvago/gitlab-access-token`, and
+`dev/phrase/strings-token`. It exports the tokens only to the command and its
+children, preserves the command's exit status, and locks the vault afterward.
+It stops if unlocking, synchronization, or a lookup fails, or if a required
+password is empty. Shell tracing is disabled inside the wrapper.
+
+The Bitwarden CLI must already be logged in. The existing private CA is loaded
+from `~/.config/bitwarden/vaultwarden-ca.crt`, unless overridden by
+`VAULTWARDEN_CA_FILE` or `NODE_EXTRA_CA_CERTS`.
+
+After removing old global token exports, clear them from any existing terminal
+and start a fresh login shell:
+
+```sh
+unset CARVAGO_GITHUB_ACCESS_TOKEN CARVAGO_GITLAB_ACCESS_TOKEN PHRASE_STRINGS_TOKEN
+exec zsh -l
+```
+
+Already-running applications retain their inherited environment until restarted.
+Keep token values out of dotfiles and Nix expressions; Nix store files are
+readable by other local users.
