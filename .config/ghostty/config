@@ -1,4 +1,4 @@
-theme = catppuccin-mocha
+theme = Catppuccin Mocha
 font-family = "FiraCode Nerd Font Mono"
 font-size = 19
 background-blur-radius = 20
@@ -6,5 +6,26 @@ mouse-hide-while-typing = true
 window-decoration = true
 # keybind = global:cmd+/=toggle_quick_terminal
 macos-option-as-alt = true
+
+# Forward Cmd+1..9 to terminal applications using the Kitty keyboard protocol.
+# Ghostty otherwise consumes these shortcuts for its own tabs.
+keybind = super+digit_1=csi:49;9u
+keybind = super+1=csi:49;9u
+keybind = super+digit_2=csi:50;9u
+keybind = super+2=csi:50;9u
+keybind = super+digit_3=csi:51;9u
+keybind = super+3=csi:51;9u
+keybind = super+digit_4=csi:52;9u
+keybind = super+4=csi:52;9u
+keybind = super+digit_5=csi:53;9u
+keybind = super+5=csi:53;9u
+keybind = super+digit_6=csi:54;9u
+keybind = super+6=csi:54;9u
+keybind = super+digit_7=csi:55;9u
+keybind = super+7=csi:55;9u
+keybind = super+digit_8=csi:56;9u
+keybind = super+8=csi:56;9u
+keybind = super+digit_9=csi:57;9u
+keybind = super+9=csi:57;9u
 # background-opacity = 0.7
 # background-blur-radius = 20

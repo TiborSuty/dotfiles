@@ -1,0 +1,36 @@
+# Personal tools layered onto frontend-monorepo's Dockerfile.dev for Coder.
+# This file is appended to the current local Dockerfile.dev by
+# update-frontend-coder; the project-owned file is never edited on the Mac.
+
+ARG NVIM_VERSION=0.12.2
+ARG NVIM_SHA256_AMD64=31cf85945cb600d96cdf69f88bc68bec814acbff50863c5546adef3a1bcef260
+ARG NVIM_SHA256_ARM64=f697d4e4582b6e4b5c3c26e76e06ce26efa08ba1768e03fd2733fcc422bb0490
+
+USER root
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        fd-find \
+        ripgrep \
+        tmux \
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -sf /usr/bin/fdfind /usr/local/bin/fd
+
+RUN ARCH="$(dpkg --print-architecture)" \
+    && case "${ARCH}" in \
+        amd64) NVIM_ARCH="x86_64"; NVIM_SHA256="${NVIM_SHA256_AMD64}" ;; \
+        arm64) NVIM_ARCH="arm64"; NVIM_SHA256="${NVIM_SHA256_ARM64}" ;; \
+        *) echo "Unsupported architecture: ${ARCH}" >&2; exit 1 ;; \
+    esac \
+    && NVIM_ARCHIVE="nvim-linux-${NVIM_ARCH}.tar.gz" \
+    && curl -fsSL \
+        "https://github.com/neovim/neovim/releases/download/v${NVIM_VERSION}/${NVIM_ARCHIVE}" \
+        -o "/tmp/${NVIM_ARCHIVE}" \
+    && echo "${NVIM_SHA256}  /tmp/${NVIM_ARCHIVE}" | sha256sum -c - \
+    && rm -rf "/opt/nvim-linux-${NVIM_ARCH}" \
+    && tar -C /opt -xzf "/tmp/${NVIM_ARCHIVE}" \
+    && ln -sf "/opt/nvim-linux-${NVIM_ARCH}/bin/nvim" /usr/local/bin/nvim \
+    && rm "/tmp/${NVIM_ARCHIVE}" \
+    && nvim --version | head -n 1
+
+USER node

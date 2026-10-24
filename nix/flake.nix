@@ -55,6 +55,7 @@
       ];
 
       nix.package = pkgs.lix;
+      fonts.packages = [ pkgs.nerd-fonts.fira-code ];
       nix.settings.experimental-features = "nix-command flakes";
       system.primaryUser = "tiborsuty";
       users.users.tiborsuty.home = "/Users/tiborsuty";

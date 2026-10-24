@@ -48,6 +48,8 @@ in
   };
 
   home.file.".gitconfig".source = ../.gitconfig;
+  home.file.".local/bin/update-frontend-coder".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/.config/coder/update-frontend-coder";
 
   xdg.configFile = {
     "bitwarden".source = ../.config/bitwarden;
@@ -60,5 +62,7 @@ in
     "nvim".source = writableConfig "nvim";
     "tmux".source = writableConfig "tmux";
     "git".source = writableConfig "git";
+    "coder".source = writableConfig "coder";
+    "television/cable/sesh.toml".source = ../.config/television/cable/sesh.toml;
   };
 }

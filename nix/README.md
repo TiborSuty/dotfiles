@@ -8,6 +8,8 @@ original machine inventory is in
 dated snapshots; `flake.nix` is the package declaration. The
 [current application inventory](application-inventory-2026-10-24.md) records
 GUI app ownership and the cask adoption checks.
+Fresh-Mac setup, local backups, and rollback are covered in
+[Setup and recovery](RECOVERY.md).
 
 ## Apply and verify
 
@@ -31,7 +33,7 @@ previous generation.
 | Native Nix | The CLI tools in `environment.systemPackages`, including Neovim, tmux, Kubernetes and Talos tools, Rustup, uv, OpenTofu, CodeCrafters, and the shell utilities. Lix is the Nix implementation. |
 | nix-darwin Homebrew Bundle | AWS CLI v1/v2, Coder, GitLab CLI, Node 26 and Node 24, NVM, Terraform, Vault, Apache Jackrabbit FileVault CLI, NetBird, XcodeGen, and the old unlinked Homebrew Zsh; the 21 casks declared in `flake.nix`, including 19 GUI apps plus Claude Code and Codex CLI. |
 | nix-darwin Mac App Store declaration | Xcode, WhatsApp, and Unzip - RAR ZIP 7Z Unarchiver. |
-| Home Manager | Zsh initialization and pinned shell plugins, Git settings, Starship, Ghostty, the Vaultwarden CA certificate, and links to the writable Neovim, tmux, and Git ignore configuration. |
+| Home Manager | Zsh initialization and pinned shell plugins, Git settings, Starship, Ghostty, the Vaultwarden CA certificate, the Television sesh channel, and links to writable Neovim, tmux, Git ignore, and Coder configuration and its launcher. |
 | nix-darwin macOS preferences | Existing Dock, Finder, typing, and trackpad settings in `preferences.nix`; active and verified in generation 10. |
 | Existing vendor installation | Adobe Creative Cloud and Lightroom, Arc, ChatGPT Classic, Docker Desktop, NetBird GUI, and the JetBrains Toolbox-managed DataGrip and WebStorm installations. |
 | User runtime | NVM's Node 24, npm, Corepack, project selected pnpm versions, Neovim and tmux plugin managers, and the global npm `nx` installation. |
@@ -91,10 +93,19 @@ standalone replacement for the generated file.
 | Git identity | `.gitconfig`, copied from the existing local configuration. |
 | Starship, Ghostty, Vaultwarden CA | The corresponding `.config` directories are linked to snapshots in the Nix store. Edit the repository copies and rebuild. |
 | Neovim, tmux, Git ignore | Home Manager owns links to the existing repository directories. These stay writable for LazyVim lockfiles, TPM plugins, and tools that update Git ignore rules. Edits take effect directly; their exact contents are tracked by Git rather than frozen in each Nix generation. |
+| Coder helper | `.config/coder` and the `~/.local/bin/update-frontend-coder` link are declared in Home Manager. The helper runs only on explicit invocation. |
+| Television sesh channel | `.config/television/cable/sesh.toml` supplies the tmux popup's channel. Other Television channels retain their current ownership. |
 
 The NVM/Corepack setup still chooses project runtimes. Shell startup does not
 download plugins or replace the project-selected Node/pnpm versions. The old
 Zinit checkout is retained as a rollback copy.
+
+The final audit records the existing Neovim lockfile and tmux submodule URLs,
+preserves the current key bindings, and ignores the local `.nvimlog` file.
+Ghostty uses the bundled `Catppuccin Mocha` theme and a declared FiraCode Nerd
+Font package. Shell startup adds the local binary path directly and can load
+NVM from Homebrew on a fresh account. These final bootstrap fixes require a
+new switch after the verified generation 10 checkpoint.
 
 The first migration saves the original files and link manifest under
 `~/.local/state/nix-darwin/home-manager-migration-20261024-104516/`.
@@ -167,3 +178,7 @@ exec zsh -l
 Already-running applications retain their inherited environment until restarted.
 Keep token values out of dotfiles and Nix expressions; Nix store files are
 readable by other local users.
+
+Run `zsh ~/dotfiles/nix/check-secrets.zsh` for a live check that prints only
+pass/fail results. It requires a local vault unlock. The recovery guide also
+records the historical-token finding and the off-device backup boundary.

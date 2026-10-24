@@ -27,15 +27,19 @@ export XDG_CONFIG_HOME="$HOME/.config"
 export EDITOR=nvim
 
 # pnpm
-export PNPM_HOME="/Users/tiborsuty/Library/pnpm"
+export PNPM_HOME="$HOME/Library/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
 
-. "$HOME/.local/bin/env"
-export PATH=/Users/tiborsuty/Documents/work/backend-monorepo/bin:$PATH
+# Keep local launchers available without depending on a previous uv installer.
+case ":$PATH:" in
+  *":$HOME/.local/bin:"*) ;;
+  *) export PATH="$HOME/.local/bin:$PATH" ;;
+esac
+export PATH="$HOME/Documents/work/backend-monorepo/bin:$PATH"
 
 # Vaultwarden item references. Secret values are injected only into the command
 # executed by with_dev_secrets and are never exported into the interactive shell.
@@ -137,5 +141,13 @@ with_dev_secrets() {
 }
 
 export NVM_DIR="$HOME/.config/nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+  source "$NVM_DIR/nvm.sh"
+elif [[ -s /opt/homebrew/opt/nvm/nvm.sh ]]; then
+  source /opt/homebrew/opt/nvm/nvm.sh
+fi
+if [[ -s "$NVM_DIR/bash_completion" ]]; then
+  source "$NVM_DIR/bash_completion"
+elif [[ -s /opt/homebrew/opt/nvm/etc/bash_completion.d/nvm ]]; then
+  source /opt/homebrew/opt/nvm/etc/bash_completion.d/nvm
+fi

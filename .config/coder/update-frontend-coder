@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: update-frontend-coder
+
+Generate Dockerfile.dev from the local frontend repository plus the personal
+Coder overlay, upload it to frontend-dev, restart the workspace, and verify the
+installed development tools.
+
+Optional environment variables:
+  FRONTEND_REPO_DIR         Local frontend-monorepo checkout
+  CODER_WORKSPACE_NAME      Coder workspace name (default: frontend-dev)
+  CODER_DOCKERFILE_OVERLAY  Personal Dockerfile overlay path
+EOF
+}
+
+case "${1:-}" in
+  "") ;;
+  -h | --help)
+    usage
+    exit 0
+    ;;
+  *)
+    echo "Unknown argument: $1" >&2
+    usage >&2
+    exit 2
+    ;;
+esac
+
+readonly repo_dir="${FRONTEND_REPO_DIR:-/Users/tiborsuty/Documents/work/frontend-monorepo2}"
+readonly workspace="${CODER_WORKSPACE_NAME:-frontend-dev}"
+readonly ssh_host="${workspace}.coder"
+readonly source_file="${repo_dir}/Dockerfile.dev"
+readonly overlay_file="${CODER_DOCKERFILE_OVERLAY:-${XDG_CONFIG_HOME:-${HOME}/.config}/coder/frontend.Dockerfile.extra}"
+readonly remote_file="/workspace/Dockerfile.dev"
+
+for command_name in coder scp ssh shasum; do
+  if ! command -v "${command_name}" >/dev/null 2>&1; then
+    echo "Required command is not installed: ${command_name}" >&2
+    exit 1
+  fi
+done
+
+if [[ ! -f "${source_file}" ]]; then
+  echo "Project Dockerfile not found: ${source_file}" >&2
+  exit 1
+fi
+
+if [[ ! -f "${overlay_file}" ]]; then
+  echo "Coder Dockerfile overlay not found: ${overlay_file}" >&2
+  exit 1
+fi
+
+generated_file="$(mktemp "${TMPDIR:-/tmp}/frontend-coder.Dockerfile.XXXXXX")"
+readonly generated_file
+trap 'rm -f "${generated_file}"' EXIT
+
+{
+  command cat "${source_file}"
+  printf '\n'
+  command cat "${overlay_file}"
+} >"${generated_file}"
+
+echo "Configuring Coder SSH access..."
+coder config-ssh --yes >/dev/null
+
+echo "Uploading generated Dockerfile to ${ssh_host}:${remote_file}..."
+scp -q "${generated_file}" "${ssh_host}:${remote_file}"
+
+local_sha="$(shasum -a 256 "${generated_file}" | awk '{print $1}')"
+remote_sha="$(ssh "${ssh_host}" "sha256sum ${remote_file}" | awk '{print $1}')"
+
+if [[ "${local_sha}" != "${remote_sha}" ]]; then
+  echo "Uploaded Dockerfile checksum does not match the generated file." >&2
+  exit 1
+fi
+
+echo "Restarting Coder workspace ${workspace}..."
+coder restart --yes "${workspace}"
+
+echo "Waiting for the rebuilt workspace and verifying tools..."
+ssh "${ssh_host}" 'nvim --version | sed -n "1p"; tmux -V; rg --version | sed -n "1p"; fd --version'
+
+echo "Coder workspace ${workspace} is ready."
