@@ -33,10 +33,15 @@ previous generation.
 | Existing vendor or app updater | Adobe Creative Cloud and Lightroom, Arc, Beeper, ChatGPT Classic, Docker Desktop, Firefox, Folx, Chrome, JetBrains Toolbox and its IDEs, NetBird GUI, Obsidian, OpenCode Desktop, Raycast, Slack, Spark, Spotify, TickTick, VLC, and Wispr Flow. |
 | User runtime | NVM's Node 24, npm, Corepack, project selected pnpm versions, Neovim and tmux plugin managers, and the global npm `nx` installation. |
 
-Homebrew formulae already replaced by native Nix are unlinked but still
-installed as rollback copies. `homebrew.onActivation.cleanup = "none"` means a
-switch will not delete them. Homebrew's transitive libraries are deliberately
-not listed in the flake.
+The 33 Homebrew formulae already replaced by Nix and their 63 unused
+dependencies were removed on 2026-10-24. The 13 declared fallback formulae and
+their 66 dependencies remain installed; `brew missing` and
+`brew autoremove --dry-run` both pass with empty output. Exact removal lists
+and verification are recorded in the
+[current Homebrew inventory](homebrew-inventory-2026-10-24.md).
+`homebrew.onActivation.cleanup = "none"` keeps system switches from performing
+automatic cleanup. Homebrew's transitive libraries are deliberately not listed
+in the flake.
 
 ## Managed dotfiles
 
