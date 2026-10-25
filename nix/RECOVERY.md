@@ -92,10 +92,11 @@ existing Nix store and caches; it is not a test of reinstalling macOS.
    zsh ~/dotfiles/nix/check-secrets.zsh
    ```
 
-   This prompts locally, verifies command-scoped injection of three nonempty
-   tokens, checks a deliberate child failure is propagated, and confirms the
+   This opens a macOS password popup, verifies command-scoped injection of three
+   nonempty tokens, checks a deliberate child failure is propagated, and confirms the
    parent shell is clean and the vault reports locked. It prints no token or
-   session values. Results go to `~/.local/state/nix-darwin/secret-check.json`.
+   session values and does not save the password. Cancellation or a three-minute
+   timeout stops the check. Results go to `~/.local/state/nix-darwin/secret-check.json`.
 9. Restore project data, application data, SSH credentials, and vendor-managed
    apps from their separate backups. Grant application permissions as needed.
    These are outside the Nix store and are not recreated by a system switch.
@@ -119,12 +120,25 @@ VPN, and private-network Coder workflows interactively.
 
 ## Backups and sensitive history
 
-The audit saves private local recovery artifacts under
-`~/.local/state/nix-darwin/recovery-audit-20261024/`. Its `backup/` directory
-contains a parent Git bundle, bundles for the pinned tmux submodules, selected
-migration snapshots, and a checksum/commit manifest. The audit also tests a
-restore into a separate checkout. This is a local recovery copy, not an
-off-device backup.
+The original audit is under `~/.local/state/nix-darwin/recovery-audit-20261024/`.
+The refreshed checkpoint, including the popup/account setup helpers, is under
+`~/.local/state/nix-darwin/checkpoint-20261025/`. Its `backup/` directory contains
+a parent Git bundle, bundles for all eight pinned plugin repositories (including
+TPM's nested dependency), selected migration snapshots, and a checksum/commit
+manifest. `recovery-backup.tar.gz` packages that directory; its checksum is in
+`recovery-backup.sha256`. CLI authentication caches are outside this backup.
+
+The checkpoint verifies an offline restore of the recorded commit and plugin
+revisions into a separate directory. To repeat it, choose a new absolute path:
+
+```sh
+python3 ~/.local/state/nix-darwin/checkpoint-20261025/backup/restore.py \
+  "$HOME/dotfiles-recovery-test"
+```
+
+This command does not activate the restored configuration. A fresh Mac should
+restore the repository to `~/dotfiles` before following the setup steps above.
+The recovery archive is a private local copy; an off-device copy is still needed.
 
 Time Machine reported no configured destination during the audit. Set up an
 encrypted off-device backup for the home directory and copy the recovery
@@ -148,10 +162,12 @@ the known-good one explicitly:
 
 ```sh
 darwin-rebuild --list-generations
-sudo darwin-rebuild switch --switch-generation 10
+sudo darwin-rebuild switch --switch-generation 11
 ```
 
-Generation 10 is the verified checkpoint before the final recovery fixes.
+Generation 11 is the verified system checkpoint, built from commit `ac54595`.
+Generation 10 is the earlier checkpoint before the final bootstrap fixes.
+The later standalone helper/documentation changes do not require activation.
 Use `sudo darwin-rebuild switch --rollback` only when the immediately preceding
 generation is the intended target. Compare the active and selected system
 paths and check the activation log after rollback.

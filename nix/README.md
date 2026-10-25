@@ -34,7 +34,7 @@ previous generation.
 | nix-darwin Homebrew Bundle | AWS CLI v1/v2, Coder, GitLab CLI, Node 26 and Node 24, NVM, Terraform, Vault, Apache Jackrabbit FileVault CLI, NetBird, XcodeGen, and the old unlinked Homebrew Zsh; the 21 casks declared in `flake.nix`, including 19 GUI apps plus Claude Code and Codex CLI. |
 | nix-darwin Mac App Store declaration | Xcode, WhatsApp, and Unzip - RAR ZIP 7Z Unarchiver. |
 | Home Manager | Zsh initialization and pinned shell plugins, Git settings, Starship, Ghostty, the Vaultwarden CA certificate, the Television sesh channel, and links to writable Neovim, tmux, Git ignore, and Coder configuration and its launcher. |
-| nix-darwin macOS preferences | Existing Dock, Finder, typing, and trackpad settings in `preferences.nix`; active and verified in generation 10. |
+| nix-darwin macOS preferences | Existing Dock, Finder, typing, and trackpad settings in `preferences.nix`; active and verified in generation 11. |
 | Existing vendor installation | Adobe Creative Cloud and Lightroom, Arc, ChatGPT Classic, Docker Desktop, NetBird GUI, and the JetBrains Toolbox-managed DataGrip and WebStorm installations. |
 | User runtime | NVM's Node 24, npm, Corepack, project selected pnpm versions, Neovim and tmux plugin managers, and the global npm `nx` installation. |
 
@@ -73,7 +73,7 @@ preferences are written with `defaults -currentHost` because the existing
 values are host-specific. Future changes to declared preferences belong in
 `preferences.nix`; a switch reapplies them and briefly restarts Dock.
 
-Generation 10 is active and matches the selected system profile. All 51 managed
+Generation 11 is active and matches the selected system profile. All 51 managed
 preference entries match the saved settings after activation, and all 24 checked
 unmanaged settings retain their original values or absence. The
 [preference inventory](preferences-inventory-2026-10-24.md) records the saved
@@ -104,8 +104,14 @@ The final audit records the existing Neovim lockfile and tmux submodule URLs,
 preserves the current key bindings, and ignores the local `.nvimlog` file.
 Ghostty uses the bundled `Catppuccin Mocha` theme and a declared FiraCode Nerd
 Font package. Shell startup adds the local binary path directly and can load
-NVM from Homebrew on a fresh account. These final bootstrap fixes require a
-new switch after the verified generation 10 checkpoint.
+NVM from Homebrew on a fresh account. These final bootstrap fixes were activated
+and verified in generation 11, built from commit `ac54595`.
+
+The 2026-10-25 checkpoint adds standalone Vaultwarden setup/check helpers and
+their tests. These run directly from the checkout and require no system switch.
+Its clean-checkout build and recovery artifacts are recorded under
+`~/.local/state/nix-darwin/checkpoint-20261025/`. Token entry into the new account
+is deferred; an authenticated, locked profile is available for `--resume`.
 
 The first migration saves the original files and link manifest under
 `~/.local/state/nix-darwin/home-manager-migration-20261024-104516/`.
@@ -180,5 +186,37 @@ Keep token values out of dotfiles and Nix expressions; Nix store files are
 readable by other local users.
 
 Run `zsh ~/dotfiles/nix/check-secrets.zsh` for a live check that prints only
-pass/fail results. It requires a local vault unlock. The recovery guide also
-records the historical-token finding and the off-device backup boundary.
+pass/fail results. It opens a macOS password popup and passes the password only
+to the unlock process, without saving it to a file or Keychain. Cancellation
+or a three-minute timeout stops the check. This script change takes effect
+without a Nix rebuild; normal `with_dev_secrets` commands retain their existing
+terminal prompt. The recovery guide also records the historical-token finding
+and the off-device backup boundary.
+
+For a new account on the same homelab server, run:
+
+```sh
+python3 ~/dotfiles/nix/setup-vaultwarden.py
+```
+
+The popups ask for the new account's personal API `client_id` and `client_secret`
+(web vault: Settings → Security → Keys → View API key), its master password,
+and any missing development tokens. The setup creates Login items with the
+required names and stores each token in its Password field. It preserves
+existing items and stops on ambiguous or empty entries.
+
+Authentication is staged in a private CLI profile. Only after all three items
+are verified and the vault is locked does it replace the default CLI profile,
+preserving the previous profile under `~/.local/state/nix-darwin/`. The CLI keeps
+its normal authentication cache and encrypted vault data; no credential values
+are written to dotfiles or printed. A final popup runs the command-scoped check.
+If API login succeeds but setup stops before the account switch, use
+`python3 ~/dotfiles/nix/setup-vaultwarden.py --resume` to continue with the
+authenticated profile without entering the API credentials again.
+
+Run the helper tests without opening dialogs or contacting a real vault:
+
+```sh
+cd ~/dotfiles
+python3 -B -m unittest discover -s nix/tests -p 'test_*.py'
+```
