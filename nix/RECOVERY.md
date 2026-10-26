@@ -72,9 +72,9 @@ existing Nix store and caches; it is not a test of reinstalling macOS.
    corepack enable
    ```
 
-   Keep each project's `packageManager` selection. The verified projects use
-   pnpm 10.29.2 for Loky Planner and 10.33.2 for OpenDesign. Run `pnpm --version`
-   inside the project before installing its dependencies.
+   Keep each project's `packageManager` selection. Loky Planner uses pnpm
+   10.29.2. Run `pnpm --version` inside the project before installing its
+   dependencies.
 7. Open Neovim and restore plugins from its committed lockfile with
    `:Lazy restore`. Initialize tmux's submodules before starting tmux; its TPM
    checkout is under `~/.config/tmux/plugins/tpm`. The `tv sesh` channel and
@@ -104,7 +104,7 @@ existing Nix store and caches; it is not a test of reinstalling macOS.
 ## Verify an existing installation
 
 ```sh
-darwin-rebuild --list-generations
+sudo darwin-rebuild --list-generations
 readlink /run/current-system
 readlink /nix/var/nix/profiles/system
 brew missing
@@ -161,13 +161,16 @@ For an activation regression, inspect the available generations, then select
 the known-good one explicitly:
 
 ```sh
-darwin-rebuild --list-generations
+sudo darwin-rebuild --list-generations
 sudo darwin-rebuild switch --switch-generation 11
 ```
 
 Generation 11 is the verified system checkpoint, built from commit `ac54595`.
 Generation 10 is the earlier checkpoint before the final bootstrap fixes.
-The later standalone helper/documentation changes do not require activation.
+The standalone helper/documentation changes from 2026-10-25 did not require
+activation. Generation 12 is now active and removes the Homebrew Zsh
+declaration. Rolling back to generation 11 restores that declaration and can
+reinstall Homebrew Zsh during activation.
 Use `sudo darwin-rebuild switch --rollback` only when the immediately preceding
 generation is the intended target. Compare the active and selected system
 paths and check the activation log after rollback.

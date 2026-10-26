@@ -86,7 +86,6 @@
           "vault-cli"
           { name = "netbirdio/tap/netbird"; trusted = true; }
           "xcodegen"
-          { name = "zsh"; link = false; }
         ];
         casks = [
           # Existing self-updating bundles are adopted; switches do not upgrade them.

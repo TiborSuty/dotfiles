@@ -22,7 +22,7 @@ brew missing
 
 The switch runs Homebrew Bundle without package upgrades or automatic cleanup.
 It also checks the declared Mac App Store apps. A fresh login shell is needed
-after a switch to see all PATH changes. `darwin-rebuild --list-generations`
+after a switch to see all PATH changes. `sudo darwin-rebuild --list-generations`
 lists rollback points; `sudo darwin-rebuild switch --rollback` activates the
 previous generation.
 
@@ -31,7 +31,7 @@ previous generation.
 | Owner | Packages |
 | --- | --- |
 | Native Nix | The CLI tools in `environment.systemPackages`, including Neovim, tmux, Kubernetes and Talos tools, Rustup, uv, OpenTofu, CodeCrafters, and the shell utilities. Lix is the Nix implementation. |
-| nix-darwin Homebrew Bundle | AWS CLI v1/v2, Coder, GitLab CLI, Node 26 and Node 24, NVM, Terraform, Vault, Apache Jackrabbit FileVault CLI, NetBird, XcodeGen, and the old unlinked Homebrew Zsh; the 21 casks declared in `flake.nix`, including 19 GUI apps plus Claude Code and Codex CLI. |
+| nix-darwin Homebrew Bundle | AWS CLI v1/v2, Coder, GitLab CLI, Node 26 and Node 24, NVM, Terraform, Vault, Apache Jackrabbit FileVault CLI, NetBird, and XcodeGen; the 21 casks declared in `flake.nix`, including 19 GUI apps plus Claude Code and Codex CLI. |
 | nix-darwin Mac App Store declaration | Xcode, WhatsApp, and Unzip - RAR ZIP 7Z Unarchiver. |
 | Home Manager | Zsh initialization and pinned shell plugins, Git settings, Starship, Ghostty, the Vaultwarden CA certificate, the Television sesh channel, and links to writable Neovim, tmux, Git ignore, and Coder configuration and its launcher. |
 | nix-darwin macOS preferences | Existing Dock, Finder, typing, and trackpad settings in `preferences.nix`; active and verified in generation 11. |
@@ -39,8 +39,9 @@ previous generation.
 | User runtime | NVM's Node 24, npm, Corepack, project selected pnpm versions, Neovim and tmux plugin managers, and the global npm `nx` installation. |
 
 The 33 Homebrew formulae already replaced by Nix and their 63 unused
-dependencies were removed on 2026-10-24. The 13 declared fallback formulae and
-their 66 dependencies remain installed; `brew missing` and
+dependencies were removed on 2026-10-24. Homebrew Zsh and its unused ncurses
+dependency were removed on 2026-10-26. The 12 declared fallback formulae and
+their 65 dependencies remain installed; `brew missing` and
 `brew autoremove --dry-run` both pass with empty output. Exact removal lists
 and verification are recorded in the
 [current Homebrew inventory](homebrew-inventory-2026-10-24.md).
@@ -73,9 +74,10 @@ preferences are written with `defaults -currentHost` because the existing
 values are host-specific. Future changes to declared preferences belong in
 `preferences.nix`; a switch reapplies them and briefly restarts Dock.
 
-Generation 11 is active and matches the selected system profile. All 51 managed
-preference entries match the saved settings after activation, and all 24 checked
-unmanaged settings retain their original values or absence. The
+Generation 12 is active and matches the selected system profile. The preference
+audit performed on generation 11 found all 51 managed entries matching the
+saved settings, and all 24 checked unmanaged settings retained their original
+values or absence. The
 [preference inventory](preferences-inventory-2026-10-24.md) records the saved
 snapshot, successful activation log, and read-only verification command.
 
@@ -126,20 +128,33 @@ been verified in your normal terminal and applications.
 
 ## Remaining migration boundaries
 
-- Coder's current server hostname does not resolve off the private network.
-  The pinned Nix Coder 2.36.6 package also requires a Terraform source build;
-  that build was stopped when available disk space fell to about 7 GiB. Keep
-  the working Homebrew Coder 2.35.6 until a server test and more disk space are
-  available.
+The [2026-10-26 fallback audit](homebrew-inventory-2026-10-24.md#follow-up-audit-2026-10-26)
+records installed versions, both pinned Nix alternatives, and the remaining
+checks. After removing Homebrew Zsh and its unused ncurses dependency,
+**12 Homebrew fallback formulae** remain.
+
+- Homebrew Zsh was uninstalled and removed from `flake.nix`. Nix Zsh 5.9.1
+  and the account's Apple Zsh both pass login-shell startup checks.
+  Generation 12 is active with the updated Brewfile and 12 fallback formulae.
+- Coder connectivity and server-version checks are deferred at the user's
+  request. The earlier 2026-10-26 audit found an expired NetBird login and
+  failed Coder hostname resolution. Keep the existing Coder CLI and NetBird
+  integration; revisit those checks only when this work is resumed.
+- The output build plans require source builds for unstable Coder 2.36.6
+  with Terraform 1.16.3, stable Vault 1.21.4, and stable Node 24.21.0.
+  Package-cache cleanup on 2026-10-26 increased free space from 7.2 to
+  22.5 GiB. Builds and workflow checks remain pending; run them one at a time.
+  Coder checks and HashiCorp Vault migration remain deferred.
 - Pinned Nix AWS CLI, GitLab CLI, and XcodeGen are older than the installed
-  Homebrew commands. Nix Terraform 1.16 is newer than the installed 1.15 and
-  could affect project state. Nix Vault is a newer major release. NetBird
-  uses a running privileged VPN helper. These remain explicit Homebrew
-  fallbacks until each workflow can be tested.
-- Node and pnpm are selected per project. `loky-planner` declares pnpm
-  10.29.2; `open-design` declares 10.33.2. Replacing NVM/Corepack globally
-  would override that selection. The Nix pnpm 10 package is available but
-  does not win over the active NVM Corepack shim in interactive shells.
+  commands. Terraform is either older on stable or a newer minor version
+  on unstable. Stable Vault 1.21.4 is a same-minor candidate for installed
+  1.21.1, but Vault remains on Homebrew by choice. The
+  separate Homebrew `vault-cli` is Apache Jackrabbit FileVault (`vlt`), for
+  which no matching package was found in the inspected Nix definitions.
+- Preserve project runtime selection through NVM/Corepack. A clean login
+  shell selects Node 24.21.0, but an inherited PATH can select Homebrew
+  Node 26.8.2 while pnpm still resolves through NVM. Verify the commands in
+  the actual project shell before replacing either runtime.
 - Homebrew 7.0.10 permits adoption of existing self-updating app bundles even
   when versions differ. The selected casks use that path and preserve the app
   contents. Adobe's installer, NetBird's privileged VPN integration, Docker's
