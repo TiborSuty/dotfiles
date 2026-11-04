@@ -23,31 +23,25 @@
         unstable.cilium-cli
         unstable.codecrafters-cli
         pkgs.cocoapods
-        pkgs.fd
-        pkgs.fzf
         pkgs.gh
         unstable.herdr
         unstable.hunk
         pkgs.kubectl
         unstable.kubernetes-helm
         unstable.langgraph-cli
-        pkgs.lazygit
         pkgs.libimobiledevice
-        pkgs.neovim
         unstable.opencode
         unstable.opentofu
         pkgs.php85
         unstable.pi-coding-agent
         unstable.pnpm_10
         pkgs.poppler-utils
-        pkgs.ripgrep
         unstable.rustup
         pkgs.sesh
         pkgs.starship
         pkgs.stow
         pkgs.talosctl
         unstable.television
-        pkgs.tmux
         unstable.uv
         pkgs.wasm-pack
         pkgs.yazi-unwrapped
@@ -125,6 +119,12 @@
     };
   in
   {
+    homeModules = {
+      common = import ./home/common.nix;
+      mac = import ./home/mac.nix;
+      workspace = import ./home/workspace.nix;
+    };
+
     darwinConfigurations."m1pro" = nix-darwin.lib.darwinSystem {
       modules = [
         configuration
