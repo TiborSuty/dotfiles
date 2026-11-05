@@ -1,6 +1,8 @@
 { config, pkgs, ... }:
 
 {
+  imports = [ ./shell.nix ];
+
   home.packages = with pkgs; [
     fd
     fzf

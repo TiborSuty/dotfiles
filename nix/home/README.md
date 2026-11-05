@@ -9,12 +9,20 @@ plugin manager.
 Tree-sitter is installed through Nix because Mason's Linux binary expects a
 system dynamic loader that the minimal workspace image does not provide.
 
-`mac.nix` imports the shared module and retains the Mac's Zsh, Git identity,
+`shell.nix` provides Zsh, autosuggestions, syntax highlighting, history,
+Oh My Zsh snippets, fzf-tab, fzf, zoxide, and the shared Starship theme.
+Portable initialization lives in `shell-init.zsh`. The Mac's root `.zshrc`
+retains Homebrew/local paths, NVM, and command-scoped secret helpers.
+
+`mac.nix` imports the shared module and retains the Mac's Git identity,
 application configuration, and other writable dotfile links. `../home.nix`
 remains its compatibility entry point for nix-darwin.
 
 `workspace.nix` imports the same module for `dev` at `/workspace/home`. It
-does not manage `.bashrc`, `.bash_profile`, project runtimes, or Git identity.
+manages Zsh and reads the existing `.config/nix-workspace/fullstack.sh` for
+project toolchain paths. It does not manage `.bashrc`, `.bash_profile`, project
+runtimes, or Git identity. The workspace image sets Zsh as the SSH login shell;
+Bash remains available for scripts and `bash -l` fallback.
 The homelab workspace image imports this module from a revision pinned in
 its own flake lock, builds its Home Manager activation package, and bundles
 an offline Git checkout for new persistent homes.
