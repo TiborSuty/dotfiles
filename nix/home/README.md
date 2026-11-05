@@ -1,9 +1,13 @@
 # Shared development tools
 
-`common.nix` installs Neovim, Git, lazygit, tmux, ripgrep, fd, and fzf, and
+`common.nix` installs Neovim, Git, lazygit, tmux, ripgrep, fd, fzf, and the
+Tree-sitter CLI, and
 links Neovim to the writable `~/dotfiles/.config/nvim` checkout. Keep Lua
 configuration and `lazy-lock.json` there; Nix does not replace LazyVim's
 plugin manager.
+
+Tree-sitter is installed through Nix because Mason's Linux binary expects a
+system dynamic loader that the minimal workspace image does not provide.
 
 `mac.nix` imports the shared module and retains the Mac's Zsh, Git identity,
 application configuration, and other writable dotfile links. `../home.nix`

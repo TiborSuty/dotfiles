@@ -9,6 +9,7 @@
     neovim
     ripgrep
     tmux
+    tree-sitter
   ];
 
   xdg.enable = true;
