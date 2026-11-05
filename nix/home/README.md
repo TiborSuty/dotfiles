@@ -58,3 +58,14 @@ servers and runtimes remain separate from these shared editor tools.
 
 Both consumers use the same package declarations, but retain their existing
 Nixpkgs pins. Package versions can differ between macOS and Linux.
+
+The workspace imports `workspace-vaultwarden.nix`. It provides a `bw` wrapper
+with the internal Vaultwarden HTTPS endpoint's CA and a dedicated persistent
+`~/.local/share/bitwarden-workspace` state directory. Activation configures a
+fresh state directory and refuses to replace an existing different server.
+`with_dev_secrets` is available as an executable in every shell, using the
+Mac helper's command-scoped GitHub/GitLab lookup and lock-after-command
+behavior from `vaultwarden.zsh`. Phrase remains disabled. The image flake
+supplies the same separately pinned Bitwarden package set as the Mac.
+Credentials and unlocked sessions are never included in Nix source or images;
+run `bw login` interactively after deployment.

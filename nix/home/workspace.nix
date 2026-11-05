@@ -1,7 +1,7 @@
 { ... }:
 
 {
-  imports = [ ./common.nix ];
+  imports = [ ./common.nix ./workspace-vaultwarden.nix ];
 
   home.username = "dev";
   home.homeDirectory = "/workspace/home";
