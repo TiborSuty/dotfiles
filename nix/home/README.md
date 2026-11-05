@@ -6,6 +6,12 @@ links Neovim to the writable `~/dotfiles/.config/nvim` checkout. Keep Lua
 configuration and `lazy-lock.json` there; Nix does not replace LazyVim's
 plugin manager.
 
+Nx 23.2.1 is installed globally through `../packages/nx`, using a pinned
+release tarball and npm runtime lockfile on both platforms. Its global CLI
+defers to a repository's local Nx installation. Project dependencies and
+lockfiles remain managed by the project. Linux native bindings are patched
+for the Nix library paths; installation does not run networked npm scripts.
+
 Tree-sitter is installed through Nix because Mason's Linux binary expects a
 system dynamic loader that the minimal workspace image does not provide.
 

@@ -9,6 +9,7 @@
     git
     lazygit
     neovim
+    (callPackage ../packages/nx { })
     ripgrep
     tmux
     tree-sitter
